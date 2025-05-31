@@ -111,6 +111,11 @@ function App() {
     </div>
   );
 
+  // --- Ride main workflow state
+  // rideStep: null | 'progress' | 'complete'
+  const [rideStep, setRideStep] = useState(null); 
+  const [currentRide, setCurrentRide] = useState(null); // object: details about selected ride
+
   // --- Rides Screen (Find/Offer) ---
   function RidesTab() {
     const [mode, setMode] = useState('find'); // 'find' | 'offer'
@@ -146,7 +151,16 @@ function App() {
             Offer Ride
           </button>
         </div>
-        {mode === 'find' ? <FindRideForm /> : <OfferRideForm user={user} />}
+        {
+          mode === 'find'
+            ? (
+              <FindRideForm onRequestRide={(ride) => {
+                setCurrentRide(ride);
+                setRideStep("progress");
+              }} />
+            )
+            : <OfferRideForm user={user} />
+        }
       </div>
     );
   }
