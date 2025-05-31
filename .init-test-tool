@@ -1,0 +1,4 @@
+{
+    "command": "npm run test",
+    "working_directory": "/home/kavia/workspace/code-generation/saferide-hub-16498-8a383663/safe_ride_hub"
+}
