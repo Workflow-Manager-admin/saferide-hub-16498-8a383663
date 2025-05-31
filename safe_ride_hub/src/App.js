@@ -327,8 +327,196 @@ function ActionButton({ color, icon, label, onClick }) {
   );
 }
 
-// --- Find Ride Form (minimal UI, mock results) ---
-function FindRideForm() {
+/**
+ * Ride Progress Page: shows live location, SOS button, and guardian tracking.
+ * Receives props: onComplete (callback to finish ride), rideDetails (selected ride info), user.
+ */
+function RideProgressPage({ onComplete, rideDetails, user }) {
+  // For mock purposes: live location could just be a box (no real GPS/map integration)
+  // Simulate 'ride in progress' by a "Mark as Complete" button.
+  return (
+    <div style={{
+      maxWidth: 460, margin: "0 auto", background: "#f8fbff",
+      borderRadius: 10, padding: "28px 20px", boxShadow: "0 4px 26px #e5ebfb14"
+    }}>
+      <div style={{ textAlign: "center", marginBottom: 18 }}>
+        <div style={{
+          fontSize: 28, fontWeight: 700, color: "#2196F3", marginBottom: 5
+        }}>Ride In Progress</div>
+        <div style={{
+          color: "#4CAF50", fontWeight: 500, fontSize: 17,
+          marginBottom: 6
+        }}>with {rideDetails.driver}</div>
+        <div style={{ color: "#888", marginBottom: 16, fontSize: 15 }}>Live guardian tracking is active.</div>
+        <div style={{ marginBottom: 18 }}>
+          <div style={{
+            background: "#cbeffa",
+            border: "2px solid #2196F3",
+            borderRadius: 11,
+            minHeight: 170,
+            margin: "0 auto",
+            maxWidth: 340,
+            position: "relative",
+            marginBottom: 8,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center"
+          }}>
+            <div style={{ margin: 16, color: "#1A4574" }}>
+              <span style={{ fontSize: 23, fontWeight: 600 }}>🗺️ Map Placeholder</span>
+              <div style={{ color: "#555", fontSize: 15, margin: "5px 0" }}>
+                (Your Live Location &amp; Route)
+              </div>
+            </div>
+            <div style={{
+              position: "absolute", top: 8, right: 16, color: "#4CAF50",
+              fontSize: 16, fontWeight: 500, display: "flex", alignItems: "center"
+            }}>
+              🛰️ Guardian: {user.name?.split(" ")[0] || "User"}
+            </div>
+          </div>
+        </div>
+        <div style={{
+          display: "flex", justifyContent: "center", gap: 23, marginBottom: 32
+        }}>
+          <SOSButton user={user} />
+          <button
+            className="btn"
+            onClick={onComplete}
+            style={{
+              background: "#4CAF50",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 17,
+              borderRadius: 7
+            }}
+          >Mark Ride as Complete</button>
+        </div>
+        <div style={{
+          padding: "9px 0", color: "#2196F3", fontSize: 15, fontWeight: 500
+        }}>
+          Guardian tracking:<br />
+          <span style={{ fontWeight: 600, color: "#0677e1" }}>Active</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Ride Completion Page: show mark ride as completed, prompt to rate driver, and eco score.
+ * Receives props: rideDetails, onReturnHome.
+ */
+function RideCompletePage({ rideDetails, onReturnHome }) {
+  const [rated, setRated] = useState(false);
+  const [rating, setRating] = useState(0);
+
+  // Random Eco score for demonstration
+  const ecoScore = rideDetails.eco ? (Math.round(Math.random() * 3 + 6)) : (Math.round(Math.random() * 2 + 2));
+  const ecoSavings = rideDetails.eco ? (Math.round(Math.random() * 2) + 2) : 1;
+
+  return (
+    <div style={{
+      maxWidth: 420, margin: "0 auto", background: "#f9fff8",
+      borderRadius: 10, padding: "28px 22px", boxShadow: "0 4px 26px #e3fbe514"
+    }}>
+      <div style={{ textAlign: "center", marginBottom: 16 }}>
+        <div style={{
+          fontSize: 26, fontWeight: 700, color: "#4CAF50", marginBottom: 6
+        }}>Ride Complete</div>
+        <div style={{ color: "#555", marginBottom: 16, fontSize: 15 }}>
+          Thank you for using SafeRide! Please rate your driver.
+        </div>
+        <div style={{
+          fontSize: 19,
+          fontWeight: 600,
+          marginBottom: 10,
+          color: "#2196F3"
+        }}>{rideDetails.driver} ({rideDetails.contact})</div>
+
+        <div style={{ margin: "11px 0", fontSize: 17 }}>
+          Rate your ride:
+        </div>
+        <div style={{ marginBottom: 15, display: "flex", justifyContent: "center" }}>
+          {[1, 2, 3, 4, 5].map(num => (
+            <span
+              key={num}
+              style={{
+                fontSize: 30,
+                cursor: rated ? "default" : "pointer",
+                color: num <= rating ? "#FFD600" : "#bbb",
+                transition: "color 0.18s",
+                marginRight: num < 5 ? 6 : 0
+              }}
+              onClick={() => !rated && setRating(num)}
+              aria-label={`Rate ${num}`}
+            >★</span>
+          ))}
+        </div>
+        <button
+          className="btn"
+          disabled={rated || !rating}
+          style={{
+            background: "#2196F3",
+            color: "#fff",
+            fontWeight: 700,
+            fontSize: 17,
+            borderRadius: 7,
+            marginBottom: 16,
+            minWidth: 120,
+            opacity: rating && !rated ? 1 : 0.7,
+            cursor: rating && !rated ? "pointer" : "not-allowed"
+          }}
+          onClick={() => setRated(true)}
+        >
+          {rated ? "Thank You!" : "Submit Rating"}
+        </button>
+        {rated && (
+          <div style={{
+            marginBottom: 20,
+            color: "#4CAF50",
+            fontSize: 16,
+            fontWeight: 600
+          }}>
+            ★ Your rating was submitted!
+          </div>
+        )}
+
+        <div style={{
+          borderTop: "1.2px solid #e3e5ea", marginTop: 20, paddingTop: 14
+        }}>
+          <div style={{
+            color: "#169718", fontSize: 18, fontWeight: 600, marginBottom: 2
+          }}>Your Eco Score: <span style={{ color: "#388e3c" }}>{ecoScore}/10</span></div>
+          <div style={{ color: "#444", fontSize: 14 }}>
+            Estimated CO₂ Savings: <b>{ecoSavings} kg</b>
+          </div>
+          <div style={{
+            color: "#888", fontSize: 13, marginTop: 4
+          }}>
+            (Riding with eco-friendly vehicles increases your savings!)
+          </div>
+        </div>
+        <button
+          className="btn btn-large"
+          onClick={onReturnHome}
+          style={{
+            background: "#2196F3",
+            fontWeight: 700,
+            fontSize: 18,
+            borderRadius: 7,
+            marginTop: 26,
+            minWidth: 180
+          }}
+        >Back to Home</button>
+      </div>
+    </div>
+  );
+}
+
+
+// --- Find Ride Form (minimal UI, mock results, now with Request Ride navigation) ---
+function FindRideForm({ onRequestRide }) {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [rides, setRides] = useState([]);
@@ -394,7 +582,13 @@ function FindRideForm() {
                 <div style={{ fontSize: 14, color: "#888" }}>
                   {r.seats} seat(s) &nbsp;|&nbsp; {r.time} &nbsp;{r.eco && <span style={{color:"#4CAF50"}}>🌱Eco</span>}
                 </div>
-                <button className="btn" style={{ marginTop: 6, fontSize: 15, background: "#4CAF50" }}>Request Ride</button>
+                <button
+                  className="btn"
+                  style={{ marginTop: 6, fontSize: 15, background: "#4CAF50" }}
+                  onClick={() => onRequestRide(r)}
+                >
+                  Request Ride
+                </button>
               </li>
             ))}
           </ul>
