@@ -170,6 +170,25 @@ function App() {
   if (!user) {
     // If not signed in, show Home only, but allow modal for sign up
     mainContent = HomeScreen;
+  } else if (rideStep === 'progress' && currentRide) {
+    mainContent = (
+      <RideProgressPage
+        user={user}
+        rideDetails={currentRide}
+        onComplete={() => setRideStep('complete')}
+      />
+    );
+  } else if (rideStep === 'complete' && currentRide) {
+    mainContent = (
+      <RideCompletePage
+        rideDetails={currentRide}
+        onReturnHome={() => {
+          setRideStep(null);
+          setTab('home');
+          setCurrentRide(null);
+        }}
+      />
+    );
   } else if (tab === 'home') {
     mainContent = HomeScreen;
   } else if (tab === 'rides') {
